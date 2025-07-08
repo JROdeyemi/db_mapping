@@ -1,5 +1,5 @@
-import React from 'react';
-import { Database, Plus, Trash2, Link, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { Database, Plus, Trash2, Link, X, ChevronDown, ChevronRight } from 'lucide-react';
 import { DatabaseConfig, TableInfo } from '../types/database';
 
 interface DatabaseCardProps {
@@ -29,6 +29,8 @@ export const DatabaseCard: React.FC<DatabaseCardProps> = ({
   connectionStart,
   connections,
 }) => {
+  const [isTablesExpanded, setIsTablesExpanded] = useState(true);
+
   const addTable = () => {
     const newTable: TableInfo = {
       id: `${database.id}-table-${Date.now()}`,
@@ -138,9 +140,20 @@ export const DatabaseCard: React.FC<DatabaseCardProps> = ({
       {/* Tables Section */}
       <div className="p-4">
         <div className="flex items-center justify-between mb-3">
-          <h4 className="text-sm font-medium text-gray-700">
+          <button
+            onClick={() => setIsTablesExpanded(!isTablesExpanded)}
+            className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
+          >
+            {isTablesExpanded ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )}
             Tables ({database.tables.length})
-          </h4>
+            {!isTablesExpanded && database.tables.length > 0 && (
+              <span className="text-xs text-gray-500 ml-1">- collapsed</span>
+            )}
+          </button>
           <button
             onClick={addTable}
             className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded-lg transition-colors ${
@@ -154,85 +167,95 @@ export const DatabaseCard: React.FC<DatabaseCardProps> = ({
           </button>
         </div>
         
-        <div className="min-h-[120px] space-y-1.5">
-          {database.tables.map((table) => (
-            <div
-              key={table.id}
-              id={`table-${table.id}`}
-              className={`group p-2.5 rounded-lg transition-all border cursor-pointer relative ${
-                isConnectionSource(table.id)
-                  ? 'bg-yellow-100 border-yellow-300 shadow-md'
-                  : isConnected(table.id)
-                  ? version === 'v2'
-                    ? 'bg-blue-100 border-blue-200 shadow-sm'
-                    : 'bg-green-100 border-green-200 shadow-sm'
-                    : isConnectionTarget()
-                  ? 'bg-gray-100 border-gray-400 border-dashed'
-                  : 'bg-white border-gray-200 hover:shadow-md hover:border-gray-300'
-              }`}
-              onClick={() => handleTableClick(table.id)}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 flex-1">
-                  {isConnectionSource(table.id) && (
-                    <Link className="h-4 w-4 text-yellow-600" />
-                  )}
-                  {isConnected(table.id) && !isConnectionSource(table.id) && (
-                    <Link className={`h-4 w-4 ${
-                      version === 'v2' ? 'text-blue-600' : 'text-green-600'
-                    }`} />
-                  )}
-                  <input
-                    type="text"
-                    value={table.name}
-                    onChange={(e) => {
-                      e.stopPropagation();
-                      updateTableName(table.id, e.target.value);
-                    }}
-                    onClick={(e) => e.stopPropagation()}
-                    className="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 text-sm font-medium text-gray-800"
-                    placeholder="Table name"
-                  />
-                </div>
-                <div className="flex items-center gap-1">
-                  {isConnected(table.id) && (
+        {isTablesExpanded && (
+          <div className="min-h-[120px] space-y-1.5 transition-all duration-200">
+            {database.tables.map((table) => (
+              <div
+                key={table.id}
+                id={`table-${table.id}`}
+                className={`group p-2.5 rounded-lg transition-all border cursor-pointer relative ${
+                  isConnectionSource(table.id)
+                    ? 'bg-yellow-100 border-yellow-300 shadow-md'
+                    : isConnected(table.id)
+                    ? version === 'v2'
+                      ? 'bg-blue-100 border-blue-200 shadow-sm'
+                      : 'bg-green-100 border-green-200 shadow-sm'
+                      : isConnectionTarget()
+                    ? 'bg-gray-100 border-gray-400 border-dashed'
+                    : 'bg-white border-gray-200 hover:shadow-md hover:border-gray-300'
+                }`}
+                onClick={() => handleTableClick(table.id)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 flex-1">
+                    {isConnectionSource(table.id) && (
+                      <Link className="h-4 w-4 text-yellow-600" />
+                    )}
+                    {isConnected(table.id) && !isConnectionSource(table.id) && (
+                      <Link className={`h-4 w-4 ${
+                        version === 'v2' ? 'text-blue-600' : 'text-green-600'
+                      }`} />
+                    )}
+                    <input
+                      type="text"
+                      value={table.name}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        updateTableName(table.id, e.target.value);
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 text-sm font-medium text-gray-800"
+                      placeholder="Table name"
+                    />
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {isConnected(table.id) && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onRemoveConnection(table.id);
+                        }}
+                        className="p-1 text-red-500 hover:bg-red-50 rounded transition-all"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    )}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        onRemoveConnection(table.id);
+                        removeTable(table.id);
                       }}
-                      className="p-1 text-red-500 hover:bg-red-50 rounded transition-all"
+                      className="opacity-0 group-hover:opacity-100 p-1 text-red-500 hover:bg-red-50 rounded transition-all"
                     >
-                      <X className="h-3 w-3" />
+                      <Trash2 className="h-3 w-3" />
                     </button>
-                  )}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeTable(table.id);
-                    }}
-                    className="opacity-0 group-hover:opacity-100 p-1 text-red-500 hover:bg-red-50 rounded transition-all"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </button>
+                  </div>
                 </div>
+                
+                  {isConnectionTarget() && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-90 rounded-lg">
+                    <span className="text-xs font-medium text-gray-600">Click to connect</span>
+                  </div>
+                )}
               </div>
-              
-                {isConnectionTarget() && (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-90 rounded-lg">
-                  <span className="text-xs font-medium text-gray-600">Click to connect</span>
-                </div>
-              )}
-            </div>
-          ))}
-          
-          {database.tables.length === 0 && (
-            <div className="text-center py-6 text-gray-500">
-              <Database className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p className="text-xs">No tables yet</p>
-            </div>
-          )}
-        </div>
+            ))}
+            
+            {database.tables.length === 0 && (
+              <div className="text-center py-6 text-gray-500">
+                <Database className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p className="text-xs">No tables yet</p>
+              </div>
+            )}
+          </div>
+        )}
+        
+        {!isTablesExpanded && database.tables.length > 0 && (
+          <div className="text-center py-4 text-gray-500">
+            <p className="text-xs">
+              {database.tables.length} table{database.tables.length !== 1 ? 's' : ''} hidden
+            </p>
+          </div>
+        )}
       </div>
       
       {isConnecting && connectionStart?.version === version && (
