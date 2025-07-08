@@ -11,7 +11,6 @@ interface DatabasePanelProps {
   onTableDrop: (tableId: string, version: 'v2' | 'v3') => void;
   draggedTable: { id: string; version: 'v2' | 'v3' } | null;
   connections: Array<{ v2TableId: string; v3TableId: string }>;
-  getTableElement: (tableId: string) => HTMLElement | null;
 }
 
 export const DatabasePanel: React.FC<DatabasePanelProps> = ({
@@ -23,7 +22,6 @@ export const DatabasePanel: React.FC<DatabasePanelProps> = ({
   onTableDrop,
   draggedTable,
   connections,
-  getTableElement,
 }) => {
   const addTable = () => {
     const newTable: TableInfo = {
