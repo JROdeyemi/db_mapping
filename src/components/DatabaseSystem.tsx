@@ -71,7 +71,7 @@ export const DatabaseSystem: React.FC<DatabaseSystemProps> = ({
             </div>
             <div>
               <h2 className="text-2xl font-bold text-gray-900">
-                {version.toUpperCase()} Microservices
+                {version === 'v2' ? 'Existing DBs' : 'New DBs'}
               </h2>
               <p className="text-gray-600">
                 {system.databases.length} database{system.databases.length !== 1 ? 's' : ''}
@@ -116,7 +116,7 @@ export const DatabaseSystem: React.FC<DatabaseSystemProps> = ({
             <div className="text-center py-12 text-gray-500">
               <Server className="h-16 w-16 mx-auto mb-4 opacity-50" />
               <h3 className="text-lg font-medium mb-2">No databases yet</h3>
-              <p className="text-sm mb-4">Add your first microservice database to get started</p>
+              <p className="text-sm mb-4">Add your first database to get started</p>
               <button
                 onClick={addDatabase}
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
