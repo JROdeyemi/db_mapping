@@ -73,7 +73,7 @@ export const DatabaseCard: React.FC<DatabaseCardProps> = ({
     );
   };
 
-  const isConnectionTarget = (tableId: string) => {
+  const isConnectionTarget = () => {
     return isConnecting && connectionStart && connectionStart.version !== version;
   };
 
@@ -166,7 +166,7 @@ export const DatabaseCard: React.FC<DatabaseCardProps> = ({
                   ? version === 'v2'
                     ? 'bg-blue-100 border-blue-200 shadow-sm'
                     : 'bg-green-100 border-green-200 shadow-sm'
-                  : isConnectionTarget(table.id)
+                    : isConnectionTarget()
                   ? 'bg-gray-100 border-gray-400 border-dashed'
                   : 'bg-white border-gray-200 hover:shadow-md hover:border-gray-300'
               }`}
@@ -218,7 +218,7 @@ export const DatabaseCard: React.FC<DatabaseCardProps> = ({
                 </div>
               </div>
               
-              {isConnectionTarget(table.id) && (
+                {isConnectionTarget() && (
                 <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-90 rounded-lg">
                   <span className="text-xs font-medium text-gray-600">Click to connect</span>
                 </div>

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { DatabaseSystem } from './components/DatabaseSystem';
 import { ConnectionLines } from './components/ConnectionLines';
 import { Header } from './components/Header';
@@ -16,6 +16,47 @@ function App() {
   const [connections, setConnections] = useState<TableConnection[]>([]);
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectionStart, setConnectionStart] = useState<{ tableId: string; version: 'v2' | 'v3' } | null>(null);
+
+  useEffect(() => {
+    const storedV2 = localStorage.getItem('v2System');
+    if (storedV2) {
+      try {
+        setV2System(JSON.parse(storedV2));
+      } catch (err) {
+        console.error('Failed to parse stored v2System', err);
+      }
+    }
+
+    const storedV3 = localStorage.getItem('v3System');
+    if (storedV3) {
+      try {
+        setV3System(JSON.parse(storedV3));
+      } catch (err) {
+        console.error('Failed to parse stored v3System', err);
+      }
+    }
+
+    const storedConns = localStorage.getItem('connections');
+    if (storedConns) {
+      try {
+        setConnections(JSON.parse(storedConns));
+      } catch (err) {
+        console.error('Failed to parse stored connections', err);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('v2System', JSON.stringify(v2System));
+  }, [v2System]);
+
+  useEffect(() => {
+    localStorage.setItem('v3System', JSON.stringify(v3System));
+  }, [v3System]);
+
+  useEffect(() => {
+    localStorage.setItem('connections', JSON.stringify(connections));
+  }, [connections]);
 
   const handleStartConnection = useCallback((tableId: string, version: 'v2' | 'v3') => {
     setIsConnecting(true);
